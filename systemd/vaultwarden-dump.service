@@ -1,5 +1,5 @@
 [Unit]
-Description=Restic backup for Vaultwarden
+Description=Dump Vaultwarden data to /storage staging
 After=docker.service
 Requires=docker.service
 
@@ -8,4 +8,4 @@ Type=oneshot
 Nice=10
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7
-ExecStart=/srv/infra/scripts/backup-vaultwarden.sh
+ExecStart=/srv/infra/scripts/dump-vaultwarden.sh

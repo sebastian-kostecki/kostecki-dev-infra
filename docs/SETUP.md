@@ -3,7 +3,7 @@
 Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **kostecki.dev**.
 
 - Landing repo details: [LANDING.md](./LANDING.md)
-- Other apps: [ADDING-AN-APP.md](./ADDING-AN-APP.md) · Laravel: [wallet-master.md](./wallet-master.md) · Vaultwarden: [vaultwarden.md](./vaultwarden.md) · LiveSync: [obsidian-livesync.md](./obsidian-livesync.md) · Backups: [backups.md](./backups.md)
+- Other apps: [ADDING-AN-APP.md](./ADDING-AN-APP.md) · Laravel: [wallet-master.md](./wallet-master.md) · Vaultwarden: [vaultwarden.md](./vaultwarden.md) · Backups: [backups.md](./backups.md)
 
 ---
 
@@ -48,18 +48,16 @@ Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **ko
 - [ ] First user via `/admin` invite
 - [ ] https://vault.kostecki.dev works with SSL
 
-### Obsidian LiveSync (CouchDB)
+### Remove LiveSync (if still on the VPS)
 
-- [ ] DNS: `obsidian.kostecki.dev` → VPS IP (Cloudflare **DNS only**)
-- [ ] Copy `stacks/obsidian-livesync/.env.example` → `/srv/apps/obsidian-livesync/.env` and set `COUCHDB_*`
-- [ ] `./scripts/deploy-obsidian-livesync.sh`
-- [ ] Plugin connects at `https://obsidian.kostecki.dev` (see [obsidian-livesync.md](./obsidian-livesync.md))
+- [ ] Follow [remove-obsidian-livesync.md](./remove-obsidian-livesync.md)
 
-### Backups (restic)
+### Backups (dump + Backrest)
 
 - [ ] `/storage` mounted from the backup host
-- [ ] Password files in `/etc/restic/`
-- [ ] `sudo ./scripts/install-backup-timers.sh` — see [backups.md](./backups.md)
+- [ ] DNS: `backup.kostecki.dev` → VPS IP (Cloudflare **Proxied**)
+- [ ] `sudo ./scripts/install-vaultwarden-dump-timer.sh`
+- [ ] `./scripts/deploy-backrest.sh` and first-run UI — see [backups.md](./backups.md)
 
 ---
 
@@ -68,9 +66,9 @@ Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **ko
 - Traefik (reverse proxy, SSL)
 - Deploy scripts
 - Documentation
-- Stack templates that have no separate app repo (currently CouchDB LiveSync)
+- Stack templates that have no separate app repo (currently Backrest)
 
-**Does not include:** Vue code, Laravel. Landing lives in **kostecki-dev-landing**. CouchDB for LiveSync is the documented exception: templates here, data and `.env` on the VPS.
+**Does not include:** Vue code, Laravel. Landing lives in **kostecki-dev-landing**. Backrest is the documented exception: templates here, config and data on the VPS.
 
 ---
 
@@ -84,27 +82,26 @@ kostecki-dev-infra/
 ├── docker-compose.yml          # Traefik only
 ├── docker-compose.dev.yml      # optional, local dev
 ├── stacks/
-│   └── obsidian-livesync/      # CouchDB template copied to the VPS
-├── systemd/                    # restic backup timers (installed once on VPS)
+│   └── backrest/               # restic UI template copied to the VPS
+├── systemd/                    # vaultwarden-dump timer (installed once on VPS)
 ├── scripts/
 │   ├── lib/
 │   ├── bootstrap-vps.sh
-│   ├── backup-vaultwarden.sh
-│   ├── backup-obsidian-livesync.sh
-│   ├── install-backup-timers.sh
+│   ├── dump-vaultwarden.sh
+│   ├── install-vaultwarden-dump-timer.sh
 │   ├── deploy-landing.sh       # uses pnpm
 │   ├── deploy-wallet-master.sh
 │   ├── deploy-vaultwarden.sh
-│   └── deploy-obsidian-livesync.sh
+│   └── deploy-backrest.sh
 └── docs/
     ├── SETUP.md
     ├── LANDING.md
     ├── ARCHITECTURE.md
     ├── ADDING-AN-APP.md
     ├── backups.md
+    ├── remove-obsidian-livesync.md
     ├── wallet-master.md
-    ├── vaultwarden.md
-    └── obsidian-livesync.md
+    └── vaultwarden.md
 ```
 
 ---
@@ -114,7 +111,7 @@ kostecki-dev-infra/
 ```env
 ACME_EMAIL=admin@kostecki.dev
 VPS_LANDING_DIR=/srv/apps/landing
-VPS_OBSIDIAN_LIVESYNC_DIR=/srv/apps/obsidian-livesync
+VPS_BACKREST_DIR=/srv/apps/backrest
 DOMAIN=kostecki.dev
 DOMAIN_WWW=www.kostecki.dev
 ```
@@ -193,15 +190,16 @@ Updates from `/srv/infra`:
 
 ---
 
-## VPS — Obsidian LiveSync (CouchDB)
+## VPS — Backrest + Vaultwarden dump
 
-Prerequisites: [obsidian-livesync.md](./obsidian-livesync.md) (Cloudflare **DNS only** for `obsidian.kostecki.dev`).
+Prerequisites: [backups.md](./backups.md) (Cloudflare **Proxied** for `backup.kostecki.dev`, Vaultwarden already running).
 
 ```bash
-cp /srv/infra/stacks/obsidian-livesync/.env.example /srv/apps/obsidian-livesync/.env
-# Edit COUCHDB_USER and COUCHDB_PASSWORD
-./scripts/deploy-obsidian-livesync.sh
+sudo ./scripts/install-vaultwarden-dump-timer.sh
+./scripts/deploy-backrest.sh
 ```
+
+If CouchDB LiveSync is still running: [remove-obsidian-livesync.md](./remove-obsidian-livesync.md).
 
 ---
 
@@ -237,4 +235,4 @@ docker logs traefik 2>&1 | tail -10   # should show no ERR about client version
 
 ## Next application?
 
-See [ADDING-AN-APP.md](./ADDING-AN-APP.md) — typical apps need **no changes to Traefik compose**, only a new repo + Traefik labels + DNS. LiveSync is an exception: templates under `stacks/` plus a deploy script.
+See [ADDING-AN-APP.md](./ADDING-AN-APP.md) — typical apps need **no changes to Traefik compose**, only a new repo + Traefik labels + DNS. Backrest is an exception: templates under `stacks/` plus a deploy script.

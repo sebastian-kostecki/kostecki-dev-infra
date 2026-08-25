@@ -1,7 +1,7 @@
 # Host restic backups (Vaultwarden + Obsidian LiveSync)
 
 **Date:** 2026-08-19  
-**Status:** Approved  
+**Status:** Obsolete (LiveSync dropped; Vaultwarden backups moved to Backrest — see [docs/backups.md](../../backups.md))  
 **Scope:** Automated local restic backups with GFS rotation for Vaultwarden and CouchDB LiveSync, writing to the existing VPS `/storage` mount. Wallet-master stays on Spatie.
 
 `/storage` is a network mount from another machine (not the VPS system disk). Snapshots survive VPS disk loss or a rebuilt OS as long as that mount and its host remain. A third copy (S3/B2 / `restic copy`) is a later follow-up, not this work.

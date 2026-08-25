@@ -1,0 +1,33 @@
+services:
+  backrest:
+    image: ghcr.io/garethgeorge/backrest:v1.14.1
+    container_name: backrest
+    hostname: backrest
+    restart: unless-stopped
+    environment:
+      BACKREST_DATA: /data
+      BACKREST_CONFIG: /config/config.json
+      XDG_CACHE_HOME: /cache
+      TMPDIR: /tmp
+      TZ: Europe/Warsaw
+      BACKREST_PORT: 0.0.0.0:9898
+    volumes:
+      - ./data:/data
+      - ./config:/config
+      - ./cache:/cache
+      - ./tmp:/tmp
+      - /storage/backup-staging/vaultwarden:/userdata
+      - /storage/restic/vaultwarden:/repos/vaultwarden
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.backrest.rule=Host(`backup.kostecki.dev`)
+      - traefik.http.routers.backrest.entrypoints=websecure
+      - traefik.http.routers.backrest.tls.certresolver=letsencrypt
+      - traefik.http.services.backrest.loadbalancer.server.port=9898
+
+networks:
+  proxy:
+    external: true

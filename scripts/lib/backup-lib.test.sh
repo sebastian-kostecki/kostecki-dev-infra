@@ -16,18 +16,14 @@ assert_eq() {
   fi
 }
 
-assert_eq "restic_forget_args" \
-  "--keep-daily 7 --keep-weekly 4 --keep-monthly 6" \
-  "$(restic_forget_args)"
-
 BACKUP_STORAGE="/tmp/fake-storage"
 assert_eq "app_staging_dir vaultwarden" \
   "/tmp/fake-storage/backup-staging/vaultwarden" \
   "$(app_staging_dir vaultwarden)"
 
-assert_eq "app_restic_repo obsidian-livesync" \
-  "/tmp/fake-storage/restic/obsidian-livesync" \
-  "$(app_restic_repo obsidian-livesync)"
+assert_eq "app_restic_repo vaultwarden" \
+  "/tmp/fake-storage/restic/vaultwarden" \
+  "$(app_restic_repo vaultwarden)"
 
 BACKUP_SKIP_MOUNT_CHECK=1
 if require_storage_mounted; then
@@ -48,15 +44,7 @@ if [[ -e "$(app_staging_dir vaultwarden)/x" ]]; then
 else
   echo "PASS: prepare_staging recreates empty dir"
 fi
-remove_staging vaultwarden
-if [[ -d "$(app_staging_dir vaultwarden)" ]]; then
-  echo "FAIL: remove_staging" >&2
-  fail=1
-else
-  echo "PASS: remove_staging"
-fi
-rmdir "$tmpdir/backup-staging" 2>/dev/null || true
-rmdir "$tmpdir"
+rm -rf "$tmpdir"
 
 if [[ "$fail" -ne 0 ]]; then
   exit 1

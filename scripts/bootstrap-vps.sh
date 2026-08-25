@@ -11,7 +11,7 @@ if ! command -v docker &>/dev/null; then
   echo "Log out and back in for docker group to take effect."
 fi
 
-echo "==> Installing restic..."
+echo "==> Installing restic (CLI restore)..."
 if ! command -v restic &>/dev/null; then
   sudo apt-get update
   sudo apt-get install -y restic
@@ -29,11 +29,10 @@ sudo mkdir -p \
   /srv/apps/landing \
   /srv/apps/wallet-master \
   /srv/apps/vaultwarden \
-  /srv/apps/obsidian-livesync \
+  /srv/apps/backrest \
   /storage/wallet-master-backups \
   /storage/restic/vaultwarden \
-  /storage/restic/obsidian-livesync \
-  /storage/backup-staging
+  /storage/backup-staging/vaultwarden
 sudo chown -R "$USER:$USER" /srv /storage/wallet-master-backups
 
 echo "==> Creating Docker network..."
@@ -46,5 +45,5 @@ echo "  3. docker compose up -d"
 echo "  4. Clone kostecki-dev-landing to /srv/apps/landing, build & deploy"
 echo "  5. Clone wallet-master to /srv/apps/wallet-master — see docs/wallet-master.md"
 echo "  6. Clone kostecki-dev-vaultwarden to /srv/apps/vaultwarden — see docs/vaultwarden.md"
-echo "  7. Obsidian LiveSync: copy stacks/obsidian-livesync/.env.example to /srv/apps/obsidian-livesync/.env, then ./scripts/deploy-obsidian-livesync.sh"
-echo "  8. Backups: create /etc/restic/*.password, then sudo ./scripts/install-backup-timers.sh — see docs/backups.md"
+echo "  7. If CouchDB LiveSync is still running: docs/remove-obsidian-livesync.md"
+echo "  8. Backups: sudo ./scripts/install-vaultwarden-dump-timer.sh then ./scripts/deploy-backrest.sh — see docs/backups.md"

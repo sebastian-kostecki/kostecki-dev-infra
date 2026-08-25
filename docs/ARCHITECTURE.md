@@ -22,8 +22,8 @@ Internet :443
        ├── vault.kostecki.dev
        │   vaultwarden   ← kostecki-dev-vaultwarden repo
        │
-       └── obsidian.kostecki.dev
-           couchdb (LiveSync)   ← stacks/obsidian-livesync in this repo
+       └── backup.kostecki.dev
+           backrest (restic UI)   ← stacks/backrest in this repo
 ```
 
 | Layer | Repo | Domain |
@@ -32,18 +32,18 @@ Internet :443
 | Landing | kostecki-dev-landing | kostecki.dev |
 | wallet-master | wallet-master | budget.kostecki.dev (+ Reverb on /app, /apps) |
 | vaultwarden | kostecki-dev-vaultwarden | vault.kostecki.dev |
-| CouchDB (LiveSync) | kostecki-dev-infra (`stacks/obsidian-livesync`) | obsidian.kostecki.dev |
+| Backrest | kostecki-dev-infra (`stacks/backrest`) | backup.kostecki.dev |
 
 Public exposure: **Traefik only** (ports 80/443).
 
-Details: [wallet-master.md](./wallet-master.md) · [vaultwarden.md](./vaultwarden.md) · [obsidian-livesync.md](./obsidian-livesync.md) · [backups.md](./backups.md)
+Details: [wallet-master.md](./wallet-master.md) · [vaultwarden.md](./vaultwarden.md) · [backups.md](./backups.md)
 
 ---
 
 ## Repositories
 
 ```text
-kostecki-dev-infra/          ← Traefik, scripts, LiveSync stack templates (this repo)
+kostecki-dev-infra/          ← Traefik, scripts, Backrest stack templates (this repo)
 kostecki-dev-landing/        ← Vue landing
 wallet-master/               ← Laravel + Inertia + Reverb
 kostecki-dev-vaultwarden/    ← Vaultwarden (upstream image)
@@ -51,7 +51,7 @@ kostecki-dev-vaultwarden/    ← Vaultwarden (upstream image)
 
 Separate repo per application — **no** monorepo or submodules.
 
-**Exception:** Obsidian LiveSync CouchDB has no app repo. YAML lives in this repo and is copied to `/srv/apps/obsidian-livesync`.
+**Exception:** Backrest has no app repo. YAML lives in this repo and is copied to `/srv/apps/backrest`.
 
 On VPS:
 
@@ -62,16 +62,15 @@ On VPS:
     ├── landing/        ← kostecki-dev-landing
     ├── wallet-master/  ← wallet-master
     ├── vaultwarden/    ← kostecki-dev-vaultwarden
-    └── obsidian-livesync/  ← copied from stacks/obsidian-livesync (not a clone)
+    └── backrest/       ← copied from stacks/backrest (not a clone)
 
 /storage/                   ← network mount (not the VPS system disk)
 ├── wallet-master-backups/  ← Spatie
-├── restic/vaultwarden/
-├── restic/obsidian-livesync/
-└── backup-staging/
+├── restic/vaultwarden/     ← restic repo (Backrest)
+└── backup-staging/vaultwarden/  ← SQLite dump before restic
 ```
 
-Host restic jobs (systemd) backup Vaultwarden and LiveSync. Ops: [backups.md](./backups.md).
+Host systemd dumps Vaultwarden at 03:00; Backrest snapshots staging at 03:15. Ops: [backups.md](./backups.md).
 
 ---
 
@@ -107,7 +106,7 @@ Laravel-specific: [wallet-master.md](./wallet-master.md)
 
 Third-party image example: [vaultwarden.md](./vaultwarden.md)
 
-Infra-owned stack (copied by deploy script): [obsidian-livesync.md](./obsidian-livesync.md)
+Infra-owned stack (copied by deploy script): [backups.md](./backups.md) (Backrest)
 
 ---
 
@@ -117,3 +116,4 @@ Infra-owned stack (copied by deploy script): [obsidian-livesync.md](./obsidian-l
 - HTTPS via Traefik
 - `.env` on server only
 - Traefik dashboard not public without auth
+- Backrest UI uses its own password; treat `backup.kostecki.dev` as sensitive

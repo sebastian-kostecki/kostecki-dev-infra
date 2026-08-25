@@ -1,10 +1,10 @@
 [Unit]
-Description=Daily Vaultwarden restic backup
+Description=Daily Vaultwarden dump for Backrest
 
 [Timer]
 OnCalendar=*-*-* 03:00:00
 Persistent=true
-Unit=backup-vaultwarden.service
+Unit=vaultwarden-dump.service
 
 [Install]
 WantedBy=timers.target

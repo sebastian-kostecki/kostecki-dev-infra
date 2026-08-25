@@ -1,5 +1,7 @@
 # Host restic backups Implementation Plan
 
+> **Obsolete:** LiveSync removed; Vaultwarden backups are dump timer + Backrest. See [docs/backups.md](../../backups.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add host-side restic backups with GFS rotation for Vaultwarden and Obsidian LiveSync CouchDB onto `/storage`, driven by systemd timers and scripts in this repo.

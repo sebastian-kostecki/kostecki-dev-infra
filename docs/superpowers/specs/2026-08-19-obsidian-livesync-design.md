@@ -1,7 +1,7 @@
 # Obsidian Self-hosted LiveSync (CouchDB) design
 
 **Date:** 2026-08-19  
-**Status:** Approved  
+**Status:** Obsolete (removed from production; teardown: [docs/remove-obsidian-livesync.md](../../remove-obsidian-livesync.md))  
 **Scope:** Run CouchDB for the Obsidian **Self-hosted LiveSync** plugin behind existing Traefik at `obsidian.kostecki.dev`
 
 Upstream: [apache/couchdb](https://hub.docker.com/_/couchdb) · plugin [vrtmrz/obsidian-livesync](https://github.com/vrtmrz/obsidian-livesync)
