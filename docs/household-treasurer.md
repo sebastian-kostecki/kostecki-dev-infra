@@ -72,6 +72,7 @@ labels:
 | `docker/8.5/Dockerfile.prod` | Multi-stage build: composer + npm + PHP runtime |
 | `docker/8.5/supervisord.prod.conf` | artisan serve, queue:work, schedule:work |
 | `scripts/deploy.sh` | Pull, build, up, migrate, cache |
+| `scripts/artisan.sh` | Run Artisan in the production `app` container |
 
 ```text
 services:
@@ -129,7 +130,7 @@ sudo chown -R "$USER:$USER" /storage/household-treasurer-backups
 
 ```bash
 cd /srv/apps/household-treasurer
-docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T app php artisan backup:run --only-db
+./scripts/artisan.sh backup:run --only-db
 ls -la /storage/household-treasurer-backups/
 ```
 
