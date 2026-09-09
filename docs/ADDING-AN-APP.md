@@ -4,6 +4,8 @@ Traefik discovers applications automatically via **Docker labels**. The **kostec
 
 Worked example with an upstream image (no app build): [vaultwarden.md](./vaultwarden.md) (`vault.kostecki.dev`).
 
+Laravel + PostgreSQL: [household-treasurer.md](./household-treasurer.md) (`treasurer.kostecki.dev`).
+
 ---
 
 ## 3 steps

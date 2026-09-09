@@ -3,7 +3,7 @@
 Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **kostecki.dev**.
 
 - Landing repo details: [LANDING.md](./LANDING.md)
-- Other apps: [ADDING-AN-APP.md](./ADDING-AN-APP.md) · Laravel: [wallet-master.md](./wallet-master.md) · Vaultwarden: [vaultwarden.md](./vaultwarden.md) · Backups: [backups.md](./backups.md)
+- Other apps: [ADDING-AN-APP.md](./ADDING-AN-APP.md) · Laravel: [wallet-master.md](./wallet-master.md) · [household-treasurer.md](./household-treasurer.md) · Vaultwarden: [vaultwarden.md](./vaultwarden.md) · Backups: [backups.md](./backups.md)
 
 ---
 
@@ -38,6 +38,14 @@ Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **ko
 - [ ] Configure `.env` (see [wallet-master.md](./wallet-master.md))
 - [ ] `docker compose -f docker-compose.prod.yml up -d`
 - [ ] https://budget.kostecki.dev/up returns 200
+
+### household-treasurer
+
+- [ ] DNS: `treasurer.kostecki.dev` → VPS IP (Cloudflare Proxied)
+- [ ] Clone household-treasurer → `/srv/apps/household-treasurer`
+- [ ] Configure `.env.prod` (see [household-treasurer.md](./household-treasurer.md))
+- [ ] `docker compose -f docker-compose.prod.yml up -d`
+- [ ] https://treasurer.kostecki.dev/up returns 200
 
 ### vaultwarden
 
@@ -91,6 +99,7 @@ kostecki-dev-infra/
 │   ├── install-vaultwarden-dump-timer.sh
 │   ├── deploy-landing.sh       # uses pnpm
 │   ├── deploy-wallet-master.sh
+│   ├── deploy-household-treasurer.sh
 │   ├── deploy-vaultwarden.sh
 │   └── deploy-backrest.sh
 └── docs/
@@ -101,6 +110,7 @@ kostecki-dev-infra/
     ├── backups.md
     ├── remove-obsidian-livesync.md
     ├── wallet-master.md
+    ├── household-treasurer.md
     └── vaultwarden.md
 ```
 
@@ -111,6 +121,8 @@ kostecki-dev-infra/
 ```env
 ACME_EMAIL=admin@kostecki.dev
 VPS_LANDING_DIR=/srv/apps/landing
+VPS_WALLET_DIR=/srv/apps/wallet-master
+VPS_TREASURER_DIR=/srv/apps/household-treasurer
 VPS_BACKREST_DIR=/srv/apps/backrest
 DOMAIN=kostecki.dev
 DOMAIN_WWW=www.kostecki.dev
@@ -186,6 +198,30 @@ Updates from `/srv/infra`:
 
 ```bash
 ./scripts/deploy-wallet-master.sh
+```
+
+---
+
+## VPS — household-treasurer deploy
+
+Prerequisites: [household-treasurer.md](./household-treasurer.md) (Docker files in household-treasurer repo, Cloudflare DNS).
+
+```bash
+# One-time on VPS
+git clone git@github.com:sebastian-kostecki/household-treasurer.git /srv/apps/household-treasurer
+cd /srv/apps/household-treasurer
+git checkout development
+cp .env.prod.example .env.prod
+# Edit .env.prod with production secrets
+
+docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm app php artisan key:generate
+./scripts/deploy.sh
+```
+
+Updates from `/srv/infra`:
+
+```bash
+./scripts/deploy-household-treasurer.sh
 ```
 
 ---

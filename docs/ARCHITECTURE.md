@@ -22,6 +22,9 @@ Internet :443
        ├── vault.kostecki.dev
        │   vaultwarden   ← kostecki-dev-vaultwarden repo
        │
+       ├── treasurer.kostecki.dev
+       │   household-treasurer (Laravel + Inertia)   ← household-treasurer repo
+       │
        └── backup.kostecki.dev
            backrest (restic UI)   ← stacks/backrest in this repo
 ```
@@ -32,11 +35,12 @@ Internet :443
 | Landing | kostecki-dev-landing | kostecki.dev |
 | wallet-master | wallet-master | budget.kostecki.dev (+ Reverb on /app, /apps) |
 | vaultwarden | kostecki-dev-vaultwarden | vault.kostecki.dev |
+| household-treasurer | household-treasurer | treasurer.kostecki.dev |
 | Backrest | kostecki-dev-infra (`stacks/backrest`) | backup.kostecki.dev |
 
 Public exposure: **Traefik only** (ports 80/443).
 
-Details: [wallet-master.md](./wallet-master.md) · [vaultwarden.md](./vaultwarden.md) · [backups.md](./backups.md)
+Details: [wallet-master.md](./wallet-master.md) · [household-treasurer.md](./household-treasurer.md) · [vaultwarden.md](./vaultwarden.md) · [backups.md](./backups.md)
 
 ---
 
@@ -46,6 +50,7 @@ Details: [wallet-master.md](./wallet-master.md) · [vaultwarden.md](./vaultwarde
 kostecki-dev-infra/          ← Traefik, scripts, Backrest stack templates (this repo)
 kostecki-dev-landing/        ← Vue landing
 wallet-master/               ← Laravel + Inertia + Reverb
+household-treasurer/         ← Laravel + Inertia + PostgreSQL
 kostecki-dev-vaultwarden/    ← Vaultwarden (upstream image)
 ```
 
@@ -62,10 +67,12 @@ On VPS:
     ├── landing/        ← kostecki-dev-landing
     ├── wallet-master/  ← wallet-master
     ├── vaultwarden/    ← kostecki-dev-vaultwarden
+    ├── household-treasurer/ ← household-treasurer
     └── backrest/       ← copied from stacks/backrest (not a clone)
 
 /storage/                   ← network mount (not the VPS system disk)
 ├── wallet-master-backups/  ← Spatie
+├── household-treasurer-backups/  ← Spatie
 ├── restic/vaultwarden/     ← restic repo (Backrest)
 └── backup-staging/vaultwarden/  ← SQLite dump before restic
 ```
@@ -102,7 +109,7 @@ Network (one-time): `docker network create proxy`
 
 Generic guide: [ADDING-AN-APP.md](./ADDING-AN-APP.md)
 
-Laravel-specific: [wallet-master.md](./wallet-master.md)
+Laravel-specific: [wallet-master.md](./wallet-master.md) · [household-treasurer.md](./household-treasurer.md)
 
 Third-party image example: [vaultwarden.md](./vaultwarden.md)
 

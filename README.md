@@ -2,7 +2,7 @@
 
 Traefik reverse proxy and deploy scripts for **kostecki.dev**.
 
-This repo contains **infrastructure only** — no application code. Apps (landing, wallet-master, vaultwarden) live in separate repos and attach via Traefik labels. **Exception:** Backrest (backup UI) is a stack template here (`stacks/backrest/`), copied onto the VPS by a deploy script — not a separate GitHub repo.
+This repo contains **infrastructure only** — no application code. Apps (landing, wallet-master, household-treasurer, vaultwarden) live in separate repos and attach via Traefik labels. **Exception:** Backrest (backup UI) is a stack template here (`stacks/backrest/`), copied onto the VPS by a deploy script — not a separate GitHub repo.
 
 ## Repositories
 
@@ -11,6 +11,7 @@ This repo contains **infrastructure only** — no application code. Apps (landin
 | **kostecki-dev-infra** (this) | on GitHub | `/srv/infra` |
 | **kostecki-dev-landing** | on GitHub | `/srv/apps/landing` |
 | wallet-master | on GitHub | `/srv/apps/wallet-master` |
+| household-treasurer | on GitHub | `/srv/apps/household-treasurer` |
 | **kostecki-dev-vaultwarden** | on GitHub | `/srv/apps/vaultwarden` |
 | Backrest | template in this repo | `/srv/apps/backrest` |
 
@@ -23,6 +24,7 @@ This repo contains **infrastructure only** — no application code. Apps (landin
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Overview (current + planned) |
 | [docs/ADDING-AN-APP.md](docs/ADDING-AN-APP.md) | How to attach another app to Traefik |
 | [docs/wallet-master.md](docs/wallet-master.md) | Laravel + Inertia + Reverb |
+| [docs/household-treasurer.md](docs/household-treasurer.md) | Laravel + Inertia + PostgreSQL at treasurer.kostecki.dev |
 | [docs/vaultwarden.md](docs/vaultwarden.md) | Vaultwarden at vault.kostecki.dev |
 | [docs/backups.md](docs/backups.md) | Vaultwarden dump + Backrest |
 | [docs/remove-obsidian-livesync.md](docs/remove-obsidian-livesync.md) | Teardown CouchDB LiveSync on the VPS |
