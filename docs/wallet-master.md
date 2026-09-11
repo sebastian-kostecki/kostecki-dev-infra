@@ -248,6 +248,15 @@ Expected: `php`, `reverb`, `horizon`, `scheduler` all `RUNNING`.
 
 ---
 
+## Uninstall
+
+Full teardown (containers, volumes, app directory, Spatie backups): [remove-wallet-master.md](./remove-wallet-master.md).
+
+```bash
+cd /srv/infra
+./scripts/uninstall-wallet-master.sh
+```
+
 ## Local dev — Sail
 
 In wallet-master repo:

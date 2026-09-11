@@ -38,6 +38,7 @@ Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **ko
 - [ ] Configure `.env` (see [wallet-master.md](./wallet-master.md))
 - [ ] `docker compose -f docker-compose.prod.yml up -d`
 - [ ] https://budget.kostecki.dev/up returns 200
+- [ ] To remove later: [remove-wallet-master.md](./remove-wallet-master.md)
 
 ### household-treasurer
 
@@ -99,6 +100,7 @@ kostecki-dev-infra/
 │   ├── install-vaultwarden-dump-timer.sh
 │   ├── deploy-landing.sh       # uses pnpm
 │   ├── deploy-wallet-master.sh
+│   ├── uninstall-wallet-master.sh
 │   ├── deploy-household-treasurer.sh
 │   ├── deploy-vaultwarden.sh
 │   └── deploy-backrest.sh
@@ -108,6 +110,7 @@ kostecki-dev-infra/
     ├── ARCHITECTURE.md
     ├── ADDING-AN-APP.md
     ├── backups.md
+    ├── remove-wallet-master.md
     ├── remove-obsidian-livesync.md
     ├── wallet-master.md
     ├── household-treasurer.md
@@ -199,6 +202,8 @@ Updates from `/srv/infra`:
 ```bash
 ./scripts/deploy-wallet-master.sh
 ```
+
+Teardown: [remove-wallet-master.md](./remove-wallet-master.md) (`./scripts/uninstall-wallet-master.sh`).
 
 ---
 

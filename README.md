@@ -27,6 +27,7 @@ This repo contains **infrastructure only** — no application code. Apps (landin
 | [docs/household-treasurer.md](docs/household-treasurer.md) | Laravel + Inertia + PostgreSQL at treasurer.kostecki.dev |
 | [docs/vaultwarden.md](docs/vaultwarden.md) | Vaultwarden at vault.kostecki.dev |
 | [docs/backups.md](docs/backups.md) | Vaultwarden dump + Backrest |
+| [docs/remove-wallet-master.md](docs/remove-wallet-master.md) | Teardown wallet-master on the VPS |
 | [docs/remove-obsidian-livesync.md](docs/remove-obsidian-livesync.md) | Teardown CouchDB LiveSync on the VPS |
 
 ## Quick start (VPS)
