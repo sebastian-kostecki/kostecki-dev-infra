@@ -1,6 +1,8 @@
 # wallet-master deployment
 
-Deployment guide for Laravel + Inertia + Reverb + Horizon on **budget.kostecki.dev**.
+**Removed from production.** Do not deploy. If the stack is still on the VPS, the only operation is teardown: [remove-wallet-master.md](./remove-wallet-master.md) (`./scripts/uninstall-wallet-master.sh`).
+
+The rest of this page is historical (Laravel + Inertia + Reverb + Horizon on **budget.kostecki.dev**).
 
 Related: [ADDING-AN-APP.md](./ADDING-AN-APP.md) · [ARCHITECTURE.md](./ARCHITECTURE.md)
 

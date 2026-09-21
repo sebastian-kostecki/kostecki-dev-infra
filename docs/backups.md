@@ -2,7 +2,7 @@
 
 Dwa zegary, jeden cel: **spójny SQLite** na `/storage`, potem **restic** sterowany z UI Backrest.
 
-Wallet-master zostaje przy Spatie (`/storage/wallet-master-backups`). Ten dokument go nie dotyczy.
+Household-treasurer i root-keeper zostają przy Spatie (`/storage/household-treasurer-backups`, `/storage/root-keeper-backups`). Ten dokument ich nie dotyczy.
 
 ```text
 03:00  systemd vaultwarden-dump     →  /storage/backup-staging/vaultwarden
@@ -16,7 +16,8 @@ Dump jest na hoście (Docker + sqlite), **nie** w kontenerze Backrest — obraz 
 
 ```text
 /storage/
-├── wallet-master-backups/          ← Spatie
+├── household-treasurer-backups/    ← Spatie
+├── root-keeper-backups/            ← Spatie
 ├── restic/vaultwarden/             ← repo restic (szyfrowane)
 └── backup-staging/vaultwarden/     ← dump; Backrest montuje to jako /userdata
 

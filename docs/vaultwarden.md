@@ -144,7 +144,7 @@ Checklist:
 - [ ] `/admin` works with your token
 - [ ] Invite → register → unlock vault works
 - [ ] Client sync works
-- [ ] `https://kostecki.dev` and `https://budget.kostecki.dev` still work
+- [ ] `https://kostecki.dev` and `https://treasurer.kostecki.dev` still work
 
 ---
 

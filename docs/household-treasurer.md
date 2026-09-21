@@ -6,16 +6,9 @@ Related: [ADDING-AN-APP.md](./ADDING-AN-APP.md) · [ARCHITECTURE.md](./ARCHITECT
 
 ---
 
-## Is this the same as wallet-master?
+## Not wallet-master
 
-**No.** Same VPS and Traefik, different repo and domain.
-
-| | wallet-master | household-treasurer |
-|--|---------------|---------------------|
-| Domain | budget.kostecki.dev | treasurer.kostecki.dev |
-| Database | MySQL | PostgreSQL |
-| Extra services | Redis, Typesense, Reverb, Horizon | queue worker + scheduler only |
-| Path on VPS | `/srv/apps/wallet-master` | `/srv/apps/household-treasurer` |
+wallet-master was a previous Laravel app on this VPS (`budget.kostecki.dev`) and has been removed. household-treasurer is the current Laravel + PostgreSQL pattern. root-keeper copies the same production shape (own repo, `genealog.kostecki.dev`).
 
 Keep Sail (`compose.yaml`) **local only**. On the VPS use `docker-compose.prod.yml`.
 

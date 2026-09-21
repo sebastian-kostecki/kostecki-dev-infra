@@ -3,7 +3,7 @@
 Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **kostecki.dev**.
 
 - Landing repo details: [LANDING.md](./LANDING.md)
-- Other apps: [ADDING-AN-APP.md](./ADDING-AN-APP.md) · Laravel: [wallet-master.md](./wallet-master.md) · [household-treasurer.md](./household-treasurer.md) · Vaultwarden: [vaultwarden.md](./vaultwarden.md) · Backups: [backups.md](./backups.md)
+- Other apps: [ADDING-AN-APP.md](./ADDING-AN-APP.md) · Laravel: [household-treasurer.md](./household-treasurer.md) · [root-keeper.md](./root-keeper.md) · Vaultwarden: [vaultwarden.md](./vaultwarden.md) · Backups: [backups.md](./backups.md)
 
 ---
 
@@ -31,15 +31,6 @@ Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **ko
 - [ ] Clone landing → `/srv/apps/landing`, `pnpm build`, `docker compose up -d`
 - [ ] https://kostecki.dev works with SSL
 
-### wallet-master
-
-- [ ] DNS: `budget.kostecki.dev` → VPS IP (Cloudflare Proxied); WebSockets use same host (not `ws.budget.*`)
-- [ ] Clone wallet-master → `/srv/apps/wallet-master`
-- [ ] Configure `.env` (see [wallet-master.md](./wallet-master.md))
-- [ ] `docker compose -f docker-compose.prod.yml up -d`
-- [ ] https://budget.kostecki.dev/up returns 200
-- [ ] To remove later: [remove-wallet-master.md](./remove-wallet-master.md)
-
 ### household-treasurer
 
 - [ ] DNS: `treasurer.kostecki.dev` → VPS IP (Cloudflare Proxied)
@@ -47,6 +38,14 @@ Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **ko
 - [ ] Configure `.env.prod` (see [household-treasurer.md](./household-treasurer.md))
 - [ ] `docker compose -f docker-compose.prod.yml up -d`
 - [ ] https://treasurer.kostecki.dev/up returns 200
+
+### root-keeper
+
+- [ ] DNS: `genealog.kostecki.dev` → VPS IP (Cloudflare Proxied)
+- [ ] Clone root-keeper → `/srv/apps/root-keeper`
+- [ ] Configure `.env.prod` (see [root-keeper.md](./root-keeper.md))
+- [ ] `docker compose --env-file .env.prod -f docker-compose.prod.yml up -d`
+- [ ] https://genealog.kostecki.dev/up returns 200
 
 ### vaultwarden
 
@@ -56,6 +55,10 @@ Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **ko
 - [ ] `docker compose up -d`
 - [ ] First user via `/admin` invite
 - [ ] https://vault.kostecki.dev works with SSL
+
+### Remove wallet-master (if still on the VPS)
+
+- [ ] Follow [remove-wallet-master.md](./remove-wallet-master.md)
 
 ### Remove LiveSync (if still on the VPS)
 
@@ -99,9 +102,9 @@ kostecki-dev-infra/
 │   ├── dump-vaultwarden.sh
 │   ├── install-vaultwarden-dump-timer.sh
 │   ├── deploy-landing.sh       # uses pnpm
-│   ├── deploy-wallet-master.sh
 │   ├── uninstall-wallet-master.sh
 │   ├── deploy-household-treasurer.sh
+│   ├── deploy-root-keeper.sh
 │   ├── deploy-vaultwarden.sh
 │   └── deploy-backrest.sh
 └── docs/
@@ -114,6 +117,7 @@ kostecki-dev-infra/
     ├── remove-obsidian-livesync.md
     ├── wallet-master.md
     ├── household-treasurer.md
+    ├── root-keeper.md
     └── vaultwarden.md
 ```
 
@@ -124,8 +128,8 @@ kostecki-dev-infra/
 ```env
 ACME_EMAIL=admin@kostecki.dev
 VPS_LANDING_DIR=/srv/apps/landing
-VPS_WALLET_DIR=/srv/apps/wallet-master
 VPS_TREASURER_DIR=/srv/apps/household-treasurer
+VPS_ROOT_KEEPER_DIR=/srv/apps/root-keeper
 VPS_BACKREST_DIR=/srv/apps/backrest
 DOMAIN=kostecki.dev
 DOMAIN_WWW=www.kostecki.dev
@@ -182,28 +186,9 @@ Updates from `/srv/infra`:
 
 ---
 
-## VPS — wallet-master deploy
+## VPS — wallet-master teardown
 
-Prerequisites: [wallet-master.md](./wallet-master.md) (Docker files in wallet-master repo, Cloudflare DNS).
-
-```bash
-# One-time on VPS
-git clone git@github.com:USER/wallet-master.git /srv/apps/wallet-master
-cd /srv/apps/wallet-master
-cp .env.example .env
-# Edit .env with production secrets
-
-docker compose -f docker-compose.prod.yml run --rm app php artisan key:generate
-./scripts/deploy.sh
-```
-
-Updates from `/srv/infra`:
-
-```bash
-./scripts/deploy-wallet-master.sh
-```
-
-Teardown: [remove-wallet-master.md](./remove-wallet-master.md) (`./scripts/uninstall-wallet-master.sh`).
+wallet-master is **not** a current app. If it is still on the VPS: [remove-wallet-master.md](./remove-wallet-master.md) (`./scripts/uninstall-wallet-master.sh`). Historical labels: [wallet-master.md](./wallet-master.md).
 
 ---
 
@@ -227,6 +212,29 @@ Updates from `/srv/infra`:
 
 ```bash
 ./scripts/deploy-household-treasurer.sh
+```
+
+---
+
+## VPS — root-keeper deploy
+
+Prerequisites: [root-keeper.md](./root-keeper.md) (Docker files in root-keeper repo, Cloudflare DNS). `scripts/deploy.sh` in the app repo is a follow-up.
+
+```bash
+# One-time on VPS
+git clone git@github.com:sebastian-kostecki/root-keeper.git /srv/apps/root-keeper
+cd /srv/apps/root-keeper
+cp .env.prod.example .env.prod
+# Edit .env.prod with production secrets
+
+docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm app php artisan key:generate
+./scripts/deploy.sh
+```
+
+Updates from `/srv/infra`:
+
+```bash
+./scripts/deploy-root-keeper.sh
 ```
 
 ---

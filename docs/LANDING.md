@@ -78,10 +78,10 @@ Output: `dist/` — static HTML, JS, CSS served by nginx in Docker.
 Optional env (in landing repo `.env`):
 
 ```env
-VITE_APP_URL=https://app.kostecki.dev
+VITE_APP_URL=https://treasurer.kostecki.dev
 ```
 
-Use for “Sign in” links to wallet-master (can 404 until the app exists).
+Use for “Sign in” links to household-treasurer (can 404 until the app exists).
 
 ---
 

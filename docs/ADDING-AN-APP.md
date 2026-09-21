@@ -4,7 +4,7 @@ Traefik discovers applications automatically via **Docker labels**. The **kostec
 
 Worked example with an upstream image (no app build): [vaultwarden.md](./vaultwarden.md) (`vault.kostecki.dev`).
 
-Laravel + PostgreSQL: [household-treasurer.md](./household-treasurer.md) (`treasurer.kostecki.dev`).
+Laravel + PostgreSQL: [household-treasurer.md](./household-treasurer.md) (`treasurer.kostecki.dev`) · [root-keeper.md](./root-keeper.md) (`genealog.kostecki.dev`).
 
 ---
 
@@ -84,7 +84,7 @@ Each **public** service gets its own Traefik router, e.g.:
 - `app.kostecki.dev` → nginx (HTTP)
 - `ws.kostecki.dev` → reverb (WebSocket, port 8080)
 
-This is still **one repo, one docker-compose** — not separate applications. Example: [wallet-master.md](./wallet-master.md).
+This is still **one repo, one docker-compose** — not separate applications. Historical example with Reverb path prefixes: [wallet-master.md](./wallet-master.md) (removed from production).
 
 ---
 
