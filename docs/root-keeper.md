@@ -4,7 +4,7 @@ Deployment guide for Laravel + Inertia (React) + PostgreSQL on **genealog.kostec
 
 Related: [ADDING-AN-APP.md](./ADDING-AN-APP.md) · [ARCHITECTURE.md](./ARCHITECTURE.md)
 
-`docker-compose.prod.yml` and `docker/8.5/Dockerfile.prod` live in the [root-keeper](https://github.com/sebastian-kostecki/root-keeper) repo. `scripts/deploy.sh` and `.env.prod.example` are a follow-up in that repo — `deploy-root-keeper.sh` calls `./scripts/deploy.sh` once it exists.
+`docker-compose.prod.yml`, `docker/8.5/Dockerfile.prod`, `scripts/deploy.sh`, and `.env.prod.example` live in the [root-keeper](https://github.com/sebastian-kostecki/root-keeper) repo. `deploy-root-keeper.sh` calls `./scripts/deploy.sh`.
 
 Keep Sail (`compose.yaml`, `docker/8.5/Dockerfile`) **local only**. On the VPS use `docker-compose.prod.yml`. Do not build production from the Sail Dockerfile (xdebug / Playwright).
 
@@ -60,8 +60,8 @@ labels:
 | `docker-compose.prod.yml` | app + pgsql + Traefik labels |
 | `docker/8.5/Dockerfile.prod` | Multi-stage build: composer + npm + PHP runtime |
 | `docker/8.5/supervisord.prod.conf` | artisan serve, queue:work, schedule:work |
-| `scripts/deploy.sh` | Pull, build, up, migrate, cache (follow-up in the app repo) |
-| `scripts/artisan.sh` | Run Artisan in the production `app` container (follow-up) |
+| `scripts/deploy.sh` | Pull, build, up, migrate, cache |
+| `scripts/artisan.sh` | Run Artisan in the production `app` container |
 
 ```text
 services:
@@ -82,7 +82,7 @@ volumes:
 
 ## Laravel `.env.prod`
 
-Production values live in `root-keeper/.env.prod` (must be gitignored). Start from `.env.prod.example` when that file exists. Compose loads `.env.prod` (`--env-file`) and mounts it into the app container as `.env`.
+Production values live in `root-keeper/.env.prod` (must be gitignored). Start from `.env.prod.example`. Compose loads `.env.prod` (`--env-file`) and mounts it into the app container as `.env`.
 
 Set `DB_CONNECTION=pgsql` — do not copy the local Sail `.env` (`sqlite`).
 
@@ -96,7 +96,7 @@ On the VPS, fill at least:
 
 ## Backups
 
-Intended path: [spatie/laravel-backup](https://github.com/spatie/laravel-backup) backing up **PostgreSQL and `storage/app`** (scans), same shape as household-treasurer — not DB-only. Schedule at **03:45** Europe/Warsaw so it does not collide with treasurer (03:00), Vaultwarden dump (03:00), or Backrest (03:15). Package + schedule are a follow-up in the app repo.
+[spatie/laravel-backup](https://github.com/spatie/laravel-backup) backs up **PostgreSQL and `storage/app`** (scans), same shape as household-treasurer — not DB-only. Schedule: `backup:run` at **03:45**, `backup:clean` at **04:15**, `backup:monitor` at **04:45** Europe/Warsaw so it does not collide with treasurer (03:00), Vaultwarden dump (03:00), or Backrest (03:15).
 
 On the VPS, archives go **outside the app directory**:
 
@@ -123,7 +123,7 @@ sudo chown -R "$USER:$USER" /storage/root-keeper-backups
 
 ### First deploy (on VPS)
 
-Requires `scripts/deploy.sh` and `.env.prod.example` in the app repo (follow-up).
+Requires `scripts/deploy.sh` and `.env.prod.example` in the app repo.
 
 ```bash
 cd /srv/apps/root-keeper
