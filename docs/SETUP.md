@@ -42,7 +42,7 @@ Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **ko
 
 ### root-keeper
 
-- [ ] DNS: `genealog.kostecki.dev` → VPS IP (Cloudflare Proxied)
+- [ ] DNS: `genealog.kostecki.dev` → VPS IP (Cloudflare DNS only — not Proxied)
 - [ ] Clone root-keeper → `/srv/apps/root-keeper`
 - [ ] Configure `.env.prod` (see [root-keeper.md](./root-keeper.md))
 - [ ] `docker compose --env-file .env.prod -f docker-compose.prod.yml up -d`
