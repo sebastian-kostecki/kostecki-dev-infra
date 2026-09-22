@@ -10,25 +10,26 @@ Keep Sail (`compose.yaml`, `docker/8.5/Dockerfile`) **local only**. On the VPS u
 
 ---
 
-## DNS-only (szara chmurka)
+## DNS
 
 ```text
-genealog.kostecki.dev  →  VPS IP (DNS only)
+genealog.kostecki.dev  →  VPS IP (Cloudflare Proxied)
 ```
 
-- A record for `genealog` → VPS IP, **DNS only** (grey cloud) — not Proxied
-- Traffic does not pass through Cloudflare (NFR: no third parties handling data or scans)
-- TLS is handled end-to-end by Traefik (Let's Encrypt)
+---
+
+## Cloudflare (Proxied)
+
+- A record for `genealog` → VPS IP, **Proxied** (orange cloud) — kept intentionally for Cloudflare's DDoS / bot protection in front of the origin
+- SSL/TLS mode: **Full (strict)**
+- Origin TLS is handled by Traefik (Let's Encrypt)
+- Note: this means traffic and uploaded scans pass through Cloudflare as a third party. That trade-off (DDoS/bot protection vs. no third parties) is tracked against root-keeper's PRD NFR separately — see `context/changes/production-data-safety/plan.md` in the root-keeper repo.
 
 Verify:
 
 ```bash
-dig +short genealog.kostecki.dev @1.1.1.1
-dig +short genealog.kostecki.dev @8.8.8.8
-# expected: VPS IP, not a Cloudflare range (188.114.96.0/23, 104.16.0.0/12, 172.64.0.0/13)
-
 curl -svI https://genealog.kostecki.dev/up
-# expected: HTTP/2 200, issuer Let's Encrypt, no cf-ray or server: cloudflare headers
+# expected: HTTP/2 200, server: cloudflare, cf-ray present (confirms traffic is going through Cloudflare as intended)
 ```
 
 ---
