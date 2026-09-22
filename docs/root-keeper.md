@@ -116,6 +116,8 @@ On the VPS, archives go **outside the app directory**:
 
 `docker-compose.prod.yml` mounts the host path via `BACKUP_HOST_DIR` (default `/storage/root-keeper-backups`).
 
+Archives are encrypted (`backup.backup.encryption` = `default`, AES-256 ZIP) using `BACKUP_ARCHIVE_PASSWORD` from `.env.prod` — keep a copy of that password off this VPS (password manager, etc.); it's the only way to decrypt backups if this host is lost. `scripts/deploy.sh` refuses to deploy if `BACKUP_ARCHIVE_PASSWORD`, `MAIL_HOST`, or `BACKUP_NOTIFICATION_MAIL` is empty, or if `BACKUP_OFFSITE_ENABLED` is truthy (`production_assert_env_ready` in `scripts/lib/production-deploy.sh`). It also runs `backup:run --only-db` against the running `app` container before `up -d`/`migrate --force`, so every migration has a fresh DB-only backup ahead of it.
+
 ### One-time setup (VPS)
 
 ```bash
@@ -124,6 +126,77 @@ sudo chown -R "$USER:$USER" /storage/root-keeper-backups
 ```
 
 `bootstrap-vps.sh` creates this directory automatically on new servers.
+
+---
+
+## Restore
+
+Drilled once on 2026-09-22: decrypted an archive with the off-VPS password, restored the DB dump into a throwaway Postgres 18, and confirmed a test file survives a rebuild. Steps below are what was actually run, not a generic tutorial — repeat them for a real restore.
+
+### Where things are
+
+- Archives: `/storage/root-keeper-backups/<APP_NAME>/<timestamp>.zip` (note the `APP_NAME` subfolder, e.g. `Root Keeper` — not directly under `root-keeper-backups/`)
+- Inside the archive: `db-dumps/postgresql-<DB_DATABASE>.sql` (plain `pg_dump` SQL, owned by the `DB_USERNAME` role) and scans under `private/…` (`relative_path` is `storage/app`, so paths inside the zip mirror `storage/app/`)
+- Password: `BACKUP_ARCHIVE_PASSWORD` from `.env.prod` — **only** the off-VPS copy can be trusted if the VPS itself is compromised or lost
+
+### Decrypt an archive
+
+`encryption=default` is ZIP **AES-256** — `unzip` cannot open it, use `7z` (no host install needed, run it in a throwaway container):
+
+```bash
+mkdir -p /tmp/restore-drill
+docker run --rm \
+  -v "/storage/root-keeper-backups/<APP_NAME>/<archive>.zip:/archive.zip:ro" \
+  -v /tmp/restore-drill:/out \
+  alpine sh -c "apk add --no-cache p7zip >/dev/null && 7z x -p'<password from off-VPS copy>' -o/out /archive.zip"
+```
+
+Verify a restored file bit-for-bit against the original with `sha256sum`.
+
+### Load the DB dump — Postgres 18 only
+
+`Dockerfile.prod` pins `postgresql-client-18` to server `postgres:18-alpine` — never restore into a different major version. Use a disposable container, **not** the `keeper-pgsql` volume or the `proxy` network:
+
+```bash
+docker run -d --name restore-drill-pg \
+  -e POSTGRES_PASSWORD=<any-temp-password> \
+  -e POSTGRES_USER=<DB_USERNAME from .env.prod, e.g. keeper> \
+  -e POSTGRES_DB=<DB_DATABASE from .env.prod, e.g. root_keeper> \
+  postgres:18-alpine
+
+docker cp /tmp/restore-drill/db-dumps/postgresql-<DB_DATABASE>.sql restore-drill-pg:/tmp/dump.sql
+docker exec -e PGPASSWORD=<temp-password> restore-drill-pg \
+  psql -U <DB_USERNAME> -d <DB_DATABASE> -v ON_ERROR_STOP=1 -f /tmp/dump.sql
+```
+
+The dump's `ALTER TABLE ... OWNER TO <DB_USERNAME>` statements fail under `ON_ERROR_STOP=1` if the container's `POSTGRES_USER` doesn't match `DB_USERNAME` in `.env.prod` — match it and re-run.
+
+Compare table list and row counts against production:
+
+```bash
+docker exec -e PGPASSWORD=<temp-password> restore-drill-pg psql -U <DB_USERNAME> -d <DB_DATABASE> -c '\dt'
+docker exec -e PGPASSWORD=<temp-password> restore-drill-pg psql -U <DB_USERNAME> -d <DB_DATABASE> -c 'select count(*) from users;'
+./scripts/artisan.sh tinker --execute 'echo DB::table("users")->count();'
+```
+
+### Restore `private/` scans into a running app
+
+Copy the extracted `private/` tree back into `storage/app/private` on the VPS (bind-mounted `./storage`, survives rebuilds — confirmed in the 2026-09-22 drill with `docker compose ... up -d --build` + `sha256sum` before/after).
+
+### Full production restore (not drilled — do in this order if it's ever real)
+
+1. `docker compose --env-file .env.prod -f docker-compose.prod.yml stop app`
+2. Restore the DB dump into the **real** `pgsql` service/volume (same `psql -v ON_ERROR_STOP=1` approach, against `keeper-pgsql`, not a throwaway container)
+3. Restore `private/` files into `storage/app/private`
+4. `./scripts/deploy.sh` (or `docker compose ... up -d`)
+5. Repeat the drill's verification (checksums, table counts, `curl -I https://genealog.kostecki.dev/up`) against the real restore before trusting it
+
+### Cleanup after a drill
+
+```bash
+docker rm -f restore-drill-pg
+rm -rf /tmp/restore-drill
+```
 
 ---
 
