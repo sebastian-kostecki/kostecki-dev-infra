@@ -136,7 +136,7 @@ Drilled once on 2026-09-22: decrypted an archive with the off-VPS password, rest
 ### Where things are
 
 - Archives: `/storage/root-keeper-backups/<APP_NAME>/<timestamp>.zip` (note the `APP_NAME` subfolder, e.g. `Root Keeper` — not directly under `root-keeper-backups/`)
-- Inside the archive: `db-dumps/postgresql-<DB_DATABASE>.sql` (plain `pg_dump` SQL, owned by the `DB_USERNAME` role) and scans under `private/…` (`relative_path` is `storage/app`, so paths inside the zip mirror `storage/app/`)
+- Inside the archive: `db-dumps/postgresql-<DB_DATABASE>.sql` (plain `pg_dump` SQL, owned by the `DB_USERNAME` role) and source originals and thumbnails under `private/sources/<tree_id>/` and `private/sources/<tree_id>/thumbnails/` (`relative_path` is `storage/app`, so paths inside the zip mirror `storage/app/`)
 - Password: `BACKUP_ARCHIVE_PASSWORD` from `.env.prod` — **only** the off-VPS copy can be trusted if the VPS itself is compromised or lost
 
 ### Decrypt an archive
@@ -171,15 +171,27 @@ docker exec -e PGPASSWORD=<temp-password> restore-drill-pg \
 
 The dump's `ALTER TABLE ... OWNER TO <DB_USERNAME>` statements fail under `ON_ERROR_STOP=1` if the container's `POSTGRES_USER` doesn't match `DB_USERNAME` in `.env.prod` — match it and re-run.
 
-Compare table list and row counts against production:
+Compare table list and row counts against production. Run the same query on both (throwaway container with `psql`, production via `./scripts/artisan.sh tinker` or `psql`):
+
+```sql
+select 'users' t, count(*) from users union all
+select 'trees', count(*) from trees union all
+select 'people', count(*) from people union all
+select 'events', count(*) from events union all
+select 'event_participants', count(*) from event_participants union all
+select 'sources', count(*) from sources union all
+select 'event_source', count(*) from event_source union all
+select 'parent_child_relations', count(*) from parent_child_relations union all
+select 'migrations', count(*) from migrations;
+```
 
 ```bash
 docker exec -e PGPASSWORD=<temp-password> restore-drill-pg psql -U <DB_USERNAME> -d <DB_DATABASE> -c '\dt'
-docker exec -e PGPASSWORD=<temp-password> restore-drill-pg psql -U <DB_USERNAME> -d <DB_DATABASE> -c 'select count(*) from users;'
-./scripts/artisan.sh tinker --execute 'echo DB::table("users")->count();'
 ```
 
-### Restore `private/` scans into a running app
+The full drill checklist (what to record, the `scans/%` leftover check, the cadence and the drill log) lives in root-keeper `context/foundation/test-plan.md` §6.3.
+
+### Restore `private/` source files into a running app
 
 Copy the extracted `private/` tree back into `storage/app/private` on the VPS (bind-mounted `./storage`, survives rebuilds — confirmed in the 2026-09-22 drill with `docker compose ... up -d --build` + `sha256sum` before/after).
 
