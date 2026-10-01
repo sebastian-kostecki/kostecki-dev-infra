@@ -131,7 +131,7 @@ sudo chown -R "$USER:$USER" /storage/root-keeper-backups
 
 ## Restore
 
-Drilled once on 2026-09-22: decrypted an archive with the off-VPS password, restored the DB dump into a throwaway Postgres 18, and confirmed a test file survives a rebuild. Steps below are what was actually run, not a generic tutorial — repeat them for a real restore.
+Drilled on 2026-09-22 and again on 2026-10-01 (after the scans → sources rename, with the 8 domain tables, `migrations` and a source original + thumbnail compared by sha256). 2026-09-22 run: decrypted an archive with the off-VPS password, restored the DB dump into a throwaway Postgres 18, and confirmed a test file survives a rebuild. Steps below are what was actually run, not a generic tutorial — repeat them for a real restore.
 
 ### Where things are
 
