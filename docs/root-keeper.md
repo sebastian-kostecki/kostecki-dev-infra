@@ -23,7 +23,7 @@ genealog.kostecki.dev  →  VPS IP (Cloudflare Proxied)
 - A record for `genealog` → VPS IP, **Proxied** (orange cloud) — kept intentionally for Cloudflare's DDoS / bot protection in front of the origin
 - SSL/TLS mode: **Full (strict)**
 - Origin TLS is handled by Traefik (Let's Encrypt)
-- Note: this means traffic and uploaded scans pass through Cloudflare as a third party. That trade-off (DDoS/bot protection vs. no third parties) is tracked against root-keeper's PRD NFR separately — see `context/changes/production-data-safety/plan.md` in the root-keeper repo.
+- Note: this means traffic and uploaded sources pass through Cloudflare as a third party. That trade-off (DDoS/bot protection vs. no third parties) is tracked against root-keeper's PRD NFR separately — see `context/changes/production-data-safety/plan.md` in the root-keeper repo.
 
 Verify:
 
@@ -104,7 +104,7 @@ On the VPS, fill at least:
 
 ## Backups
 
-[spatie/laravel-backup](https://github.com/spatie/laravel-backup) backs up **PostgreSQL and `storage/app`** (scans), same shape as household-treasurer — not DB-only. Schedule: `backup:run` at **03:45**, `backup:clean` at **04:15**, `backup:monitor` at **04:45** Europe/Warsaw so it does not collide with treasurer (03:00), Vaultwarden dump (03:00), or Backrest (03:15).
+[spatie/laravel-backup](https://github.com/spatie/laravel-backup) backs up **PostgreSQL and `storage/app`** (source files), same shape as household-treasurer — not DB-only. Schedule: `backup:run` at **03:45**, `backup:clean` at **04:15**, `backup:monitor` at **04:45** Europe/Warsaw so it does not collide with treasurer (03:00), Vaultwarden dump (03:00), or Backrest (03:15).
 
 On the VPS, archives go **outside the app directory**:
 
