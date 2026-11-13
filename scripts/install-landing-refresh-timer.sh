@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 # Installs landing-refresh.timer (daily rebuild of kostecki.dev when the archive counts change).
-# Run once on the VPS from the deploy user: sudo ./scripts/install-landing-refresh-timer.sh
+# Run once on the VPS as root: sudo ./scripts/install-landing-refresh-timer.sh (or directly as root).
 #
-# The service runs as that user (it owns /srv/apps/landing and is in the docker group).
-# Node/pnpm usually come from nvm, which systemd does not load, so their directories are
-# detected from the user's interactive shell and written into the unit's PATH.
+# The service runs as the owner of /srv/apps/landing (landing_run_user in lib/landing-lib.sh):
+# root on a VPS where everything runs as root, otherwise the deploy user, which must then be
+# in the docker group. Node/pnpm may come from nvm, which systemd does not load, so their
+# directories are detected from that user's interactive shell and written into the unit's PATH.
 # Overrides: LANDING_REFRESH_USER, LANDING_NODE_PATH (colon-separated dirs), VPS_LANDING_DIR.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-LANDING_DIR="${VPS_LANDING_DIR:-/srv/apps/landing}"
+# shellcheck source=lib/landing-lib.sh
+source "$SCRIPT_DIR/lib/landing-lib.sh"
 
 die() {
   echo "ERROR: $*" >&2
@@ -18,12 +20,12 @@ die() {
 }
 
 [[ "$(id -u)" -eq 0 ]] || die "run as root (sudo $0)"
-
-RUN_USER="${LANDING_REFRESH_USER:-${SUDO_USER:-}}"
-[[ -n "$RUN_USER" && "$RUN_USER" != "root" ]] ||
-  die "cannot tell the deploy user; run via sudo from it or set LANDING_REFRESH_USER"
-id -nG "$RUN_USER" | tr ' ' '\n' | grep -qx docker || die "$RUN_USER is not in the docker group"
 [[ -f "$LANDING_DIR/package.json" ]] || die "no landing checkout at $LANDING_DIR"
+
+RUN_USER="$(landing_run_user)" || die "cannot pick the service user (see above)"
+if [[ "$RUN_USER" != "root" ]]; then
+  id -nG "$RUN_USER" | tr ' ' '\n' | grep -qx docker || die "$RUN_USER is not in the docker group"
+fi
 command -v rsync >/dev/null || die "rsync is not installed (apt-get install -y rsync)"
 
 NODE_PATH_DIRS="${LANDING_NODE_PATH:-}"

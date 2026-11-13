@@ -14,6 +14,20 @@ landing_state_dir() {
   echo "$LANDING_DIR/.deploy"
 }
 
+# Prints the user landing-refresh.service runs as: LANDING_REFRESH_USER, else the sudo caller,
+# else the owner of the checkout (root on a VPS where everything runs as root). The user must
+# own the checkout, so the timer and a manual deploy write files the other one can replace.
+landing_run_user() {
+  local owner user
+  owner="$(stat -c %U "$LANDING_DIR")" || return 1
+  user="${LANDING_REFRESH_USER:-${SUDO_USER:-$owner}}"
+  if [[ "$user" != "$owner" ]]; then
+    echo "ERROR: $LANDING_DIR is owned by $owner, not $user (set LANDING_REFRESH_USER=$owner or chown the checkout)" >&2
+    return 1
+  fi
+  echo "$user"
+}
+
 # Holds an exclusive lock on fd 9 until the calling script exits. Fails instead of waiting.
 landing_lock() {
   local dir
