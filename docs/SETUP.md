@@ -28,7 +28,8 @@ Step-by-step guide to deploy **kostecki-dev-infra** and the landing page on **ko
 - [ ] Node.js + pnpm on VPS (for build)
 - [ ] `./scripts/bootstrap-vps.sh`
 - [ ] Clone infra → `/srv/infra`, `docker compose up -d`
-- [ ] Clone landing → `/srv/apps/landing`, `pnpm build`, `docker compose up -d`
+- [ ] Clone landing → `/srv/apps/landing`, then `./scripts/deploy-landing.sh`
+- [ ] `sudo ./scripts/install-landing-refresh-timer.sh` (daily archive counter refresh — see [LANDING.md](./LANDING.md#daily-archive-counter-refresh))
 - [ ] https://kostecki.dev works with SSL
 
 ### household-treasurer
@@ -95,12 +96,14 @@ kostecki-dev-infra/
 ├── docker-compose.dev.yml      # optional, local dev
 ├── stacks/
 │   └── backrest/               # restic UI template copied to the VPS
-├── systemd/                    # vaultwarden-dump timer (installed once on VPS)
+├── systemd/                    # vaultwarden-dump + landing-refresh timers (installed once on VPS)
 ├── scripts/
 │   ├── lib/
 │   ├── bootstrap-vps.sh
 │   ├── dump-vaultwarden.sh
 │   ├── install-vaultwarden-dump-timer.sh
+│   ├── install-landing-refresh-timer.sh
+│   ├── refresh-landing.sh      # run by landing-refresh.timer
 │   ├── deploy-landing.sh       # uses pnpm
 │   ├── uninstall-wallet-master.sh
 │   ├── deploy-household-treasurer.sh
@@ -172,10 +175,7 @@ corepack prepare pnpm@latest --activate
 
 # Deploy landing
 git clone git@github.com:USER/kostecki-dev-landing.git /srv/apps/landing
-cd /srv/apps/landing
-pnpm install --frozen-lockfile
-pnpm build
-docker compose up -d
+/srv/infra/scripts/deploy-landing.sh
 ```
 
 Updates from `/srv/infra`:
@@ -183,6 +183,8 @@ Updates from `/srv/infra`:
 ```bash
 ./scripts/deploy-landing.sh
 ```
+
+Daily archive counter refresh (once): `sudo ./scripts/install-landing-refresh-timer.sh` — see [LANDING.md](./LANDING.md#daily-archive-counter-refresh).
 
 ---
 

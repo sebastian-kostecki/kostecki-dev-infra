@@ -78,6 +78,8 @@ On VPS:
 
 Host systemd dumps Vaultwarden at 03:00; Backrest snapshots staging at 03:15. Ops: [backups.md](./backups.md).
 
+Host systemd also runs `landing-refresh.timer` at 04:30: it rebuilds the landing when the archive counts on GitHub changed. Ops: [LANDING.md](./LANDING.md#daily-archive-counter-refresh).
+
 ---
 
 ## Landing stack

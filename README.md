@@ -48,3 +48,5 @@ Deploy landing (after [Docker setup in landing repo](docs/LANDING.md)):
 ```
 
 Uses **pnpm** — install on VPS before first landing deploy (`corepack enable && corepack prepare pnpm@latest --activate`).
+
+The archive counter on the landing is refreshed daily by `landing-refresh.timer` (install once: `sudo ./scripts/install-landing-refresh-timer.sh`, details in [docs/LANDING.md](docs/LANDING.md#daily-archive-counter-refresh)).

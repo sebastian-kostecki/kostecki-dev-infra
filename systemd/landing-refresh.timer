@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily kostecki.dev archive counter refresh
+
+[Timer]
+OnCalendar=*-*-* 04:30:00
+Persistent=true
+Unit=landing-refresh.service
+
+[Install]
+WantedBy=timers.target
