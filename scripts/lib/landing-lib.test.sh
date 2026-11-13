@@ -69,6 +69,26 @@ fi
 assert_eq "publish_landing keeps www when dist is incomplete" "new" "$(cat "$LANDING_DIR/www/index.html")"
 if [[ -e "$tmp/docker.log" ]]; then failed "publish_landing skips compose for an incomplete dist"; else pass "publish_landing skips compose for an incomplete dist"; fi
 
+# --- landing_run_user ---
+unset SUDO_USER LANDING_REFRESH_USER
+owner="$(id -un)" # $LANDING_DIR was created by this test, so the current user owns it
+assert_eq "landing_run_user defaults to the checkout owner (root on a root-only VPS)" \
+  "$owner" "$(landing_run_user)"
+assert_eq "landing_run_user accepts the sudo caller who owns the checkout" \
+  "$owner" "$(SUDO_USER="$owner" landing_run_user)"
+assert_eq "landing_run_user accepts an explicit owner" \
+  "$owner" "$(LANDING_REFRESH_USER="$owner" landing_run_user)"
+if (SUDO_USER=not-the-owner landing_run_user) 2>/dev/null; then
+  failed "landing_run_user rejects a sudo caller who does not own the checkout"
+else
+  pass "landing_run_user rejects a sudo caller who does not own the checkout"
+fi
+if (LANDING_REFRESH_USER=not-the-owner landing_run_user) 2>/dev/null; then
+  failed "landing_run_user rejects an explicit user who does not own the checkout"
+else
+  pass "landing_run_user rejects an explicit user who does not own the checkout"
+fi
+
 # --- landing_lock ---
 (
   landing_lock

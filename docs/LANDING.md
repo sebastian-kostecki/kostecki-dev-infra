@@ -165,7 +165,7 @@ State in the landing checkout (all gitignored): `www/`, `.deploy/archive.json` (
 
 The landing shows the number of folders in `context/archive` of root-keeper and household-treasurer. The number is fetched from the GitHub API **at build time only**, so without a rebuild it goes stale.
 
-`landing-refresh.timer` runs `scripts/refresh-landing.sh` daily at 04:30 as the deploy user:
+`landing-refresh.timer` runs `scripts/refresh-landing.sh` daily at 04:30 as the owner of `/srv/apps/landing` (root on the current VPS):
 
 1. `ARCHIVE_STRICT=1 pnpm generate:archive` — fetches the counts. In strict mode a GitHub outage **fails the job** instead of falling back to the old count, and the site keeps its last build.
 2. Compares the counts with `.deploy/archive.json`. Unchanged → exits 0, nothing is built.
@@ -173,7 +173,7 @@ The landing shows the number of folders in `context/archive` of root-keeper and 
 
 It does **not** `git pull`: code changes still go out only through `deploy-landing.sh`.
 
-Install once (from the deploy user, which owns `/srv/apps/landing` and is in the `docker` group):
+Install once, as root. The service runs as the owner of `/srv/apps/landing`; if that is not root, it must be in the `docker` group, and `LANDING_REFRESH_USER` must match it when set:
 
 ```bash
 cd /srv/infra
