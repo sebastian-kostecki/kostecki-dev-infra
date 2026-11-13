@@ -1,0 +1,15 @@
+# Template: install-landing-refresh-timer.sh fills the @...@ placeholders.
+[Unit]
+Description=Rebuild kostecki.dev when the archive counts on GitHub change
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=@USER@
+Environment=PATH=@NODE_PATH@:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=VPS_LANDING_DIR=@LANDING_DIR@
+Nice=10
+TimeoutStartSec=20min
+ExecStart=@INFRA_DIR@/scripts/refresh-landing.sh

@@ -17,6 +17,11 @@ if ! command -v restic &>/dev/null; then
   sudo apt-get install -y restic
 fi
 
+echo "==> Installing rsync (landing publish)..."
+if ! command -v rsync &>/dev/null; then
+  sudo apt-get install -y rsync
+fi
+
 echo "==> Configuring firewall..."
 sudo ufw allow OpenSSH
 sudo ufw allow 80/tcp
